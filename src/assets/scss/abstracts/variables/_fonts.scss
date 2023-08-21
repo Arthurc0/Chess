@@ -1,0 +1,27 @@
+// @include set-font-face('Name', '../fonts/Name/?.woff2', 'woff2', 100, 'italic');
+
+@include set-font-face('Inter', '../fonts/Inter/Inter_100_Thin_Italic.woff2', 'woff2', 100, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_100_Thin.woff2', 'woff2', 100);
+@include set-font-face('Inter', '../fonts/Inter/Inter_200_ExtraLight_Italic.woff2', 'woff2', 200, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_200_ExtraLight.woff2', 'woff2', 200);
+@include set-font-face('Inter', '../fonts/Inter/Inter_300_Light_Italic.woff2', 'woff2', 300, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_300_Light.woff2', 'woff2', 300);
+@include set-font-face('Inter', '../fonts/Inter/Inter_400_Regular_Italic.woff2', 'woff2', 400, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_400_Regular.woff2', 'woff2', 400);
+@include set-font-face('Inter', '../fonts/Inter/Inter_500_Medium_Italic.woff2', 'woff2', 500, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_500_Medium.woff2', 'woff2', 500);
+@include set-font-face('Inter', '../fonts/Inter/Inter_600_SemiBold_Italic.woff2', 'woff2', 600, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_600_SemiBold.woff2', 'woff2', 600);
+@include set-font-face('Inter', '../fonts/Inter/Inter_700_Bold_Italic.woff2', 'woff2', 700, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_700_Bold.woff2', 'woff2', 700);
+@include set-font-face('Inter', '../fonts/Inter/Inter_800_ExtraBold_Italic.woff2', 'woff2', 800, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_800_ExtraBold.woff2', 'woff2', 800);
+@include set-font-face('Inter', '../fonts/Inter/Inter_900_Black_Italic.woff2', 'woff2', 900, 'italic');
+@include set-font-face('Inter', '../fonts/Inter/Inter_900_Black.woff2', 'woff2', 900);
+
+$font-family-1: 'Inter', Arial, sans-serif;
+
+$font-weight-light: 300;
+$font-weight-medium: 500;
+$font-weight-bold: 600;
+$font-weight-black: 800;

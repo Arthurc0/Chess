@@ -1,0 +1,35 @@
+@mixin set-font-face($name, $path, $format, $weight, $style: 'normal') {
+    @font-face {
+        font-family: $name;
+        src: url($path) format($format);
+        font-style: $style;
+        font-weight: $weight;
+        font-display: swap;
+    }
+}
+
+@mixin flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+$breakpoint-phone: 600px;
+$breakpoint-tablet-portrait: 900px;
+$breakpoint-tablet-landscape: 1200px;
+$breakpoint-desktop: 1800px;
+$breakpoint-big-desktop: 6000px;
+
+@mixin breakpoint($breakpoint) {
+    @media screen and (max-width: $breakpoint) {
+        @content;
+    }
+}
