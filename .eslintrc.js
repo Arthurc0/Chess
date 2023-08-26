@@ -415,9 +415,6 @@ module.exports = {
         'no-undef-init': [
             'error'
         ],
-        'no-undefined': [
-            'error'
-        ],
         'no-underscore-dangle': [
             'error'
         ],

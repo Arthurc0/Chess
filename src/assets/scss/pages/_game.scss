@@ -1,0 +1,42 @@
+$chess-board-size: 650px;
+$row-col-number: 8;
+
+*.chess-board {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.chess-board {
+    display: grid;
+    grid-template-rows: repeat($row-col-number, 1fr);
+    grid-template-columns: repeat($row-col-number, 1fr);
+    width: $chess-board-size;
+    height: $chess-board-size;
+}
+
+.cell {
+    width: calc($chess-board-size / $row-col-number);
+    height: calc($chess-board-size / $row-col-number);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    img {
+        pointer-events: none;
+        width: 95%;
+    }
+
+    &.light {
+        background-color: #cfb99c;
+    }
+    &.dark {
+        background-color: #977357;
+    }
+    &.selected {
+        background-color: red;
+    }
+}
