@@ -1,15 +1,14 @@
 :root {
     --chess-board-size: 650px;
+    --chess-board-size-number: 650;
     --row-col-number: 8;
     --cell-size: calc(var(--chess-board-size) / var(--row-col-number));
 }
 
 .piece {
+    cursor: grab;
     position: absolute;
-
-    img {
-        width: calc(var(--cell-size));
-    }
+    width: var(--cell-size);
 }
 
 *.chess-board {
@@ -21,6 +20,7 @@
 }
 
 .chess-board {
+    margin: 50px;
     position: relative;
     display: grid;
     grid-template-rows: repeat(var(--row-col-number), 1fr);
@@ -35,7 +35,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
 
     &.light {
         background-color: #cfb99c;

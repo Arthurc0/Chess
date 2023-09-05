@@ -1,21 +1,38 @@
 <template>
-    <div class="chess-board">
-        <div class="piece" @dragstart="pieceDragEnter" v-for="piece in boardPieces" :style="[{ 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` }, { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }]">
-            <img :src="getImageUrl(piece.name)" />
-        </div>
-        <div v-for="(_, colIndex) in 8" class="column">
-            <div v-for="(_, rowIndex) in 8" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', selectedPiece.colIndex === colIndex && selectedPiece.rowIndex === rowIndex ? 'selected' : '']"></div>
+    <div class="chess-board" ref="chessBoard" @drop="pieceDrop" @dragover.prevent>
+        <img class="piece" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
+        :style="[
+            { 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` },
+            { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }
+        ]" :src="getImageUrl(piece.name)" />
+        <div v-for="(_, colIndex) in boardSquares" class="column">
+            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark']"></div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { BoardPiece } from '@types/BoardPiece';
-import { reactive, ref } from 'vue';
+import type { BoardSquare } from '@types/BoardSquare';
+import { computed, reactive, ref } from 'vue';
 
-const pieceDragEnter = (): void => {
-    console.log('drag');
-};
+const pieceMovesCount = ref(2);
+const chessBoard = ref<HTMLElement>();
+
+const cellSize = computed(() => {
+    return parseFloat(getComputedStyle(document.body).getPropertyValue('--chess-board-size-number')) / parseFloat(getComputedStyle(document.body).getPropertyValue('--row-col-number'));
+});
+
+const boardSquares = ref<BoardSquare[][]>([
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
+]);
 
 const boardPieces = ref<BoardPiece[]>([
     { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
@@ -51,6 +68,44 @@ const boardPieces = ref<BoardPiece[]>([
     { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
     { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
 ]);
+
+const pieceDragging = (e: DragEvent): void => {
+    const piece = e.target as HTMLElement;
+
+    let mouseX = e.clientX;
+    let mouseY = e.clientY;
+
+    if(mouseX !== 0 && mouseY !== 0) {
+        if(mouseX < chessBoard.value!.offsetLeft - window.scrollX) mouseX = chessBoard.value!.offsetLeft - window.scrollX;
+        if(mouseY < chessBoard.value!.offsetTop - window.scrollY) mouseY = chessBoard.value!.offsetTop - window.scrollY;
+        if(mouseX > chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX) mouseX = chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX;
+        if(mouseY > chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY) mouseY = chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY;
+        piece.style.left = `calc(${mouseX - chessBoard.value!.offsetLeft + window.scrollX}px - (var(--cell-size) / 2))`;
+        piece.style.top = `calc(${mouseY - chessBoard.value!.offsetTop + window.scrollY}px - (var(--cell-size) / 2))`;
+    }
+};
+
+const pieceDragStart = (e: DragEvent): void => {
+    e.dataTransfer!.effectAllowed = 'move';
+    e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
+    (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
+};
+
+const pieceDrop = (e: DragEvent): void => {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    let colIndex = Math.floor((mouseX - chessBoard.value!.offsetLeft + window.scrollX) / cellSize.value);
+    let rowIndex = Math.floor((mouseY - chessBoard.value!.offsetTop + window.scrollY) / cellSize.value);
+    if(mouseX < chessBoard.value!.offsetLeft - window.scrollX) colIndex = 0;
+    if(mouseY < chessBoard.value!.offsetTop - window.scrollY) rowIndex = 0;
+    if(mouseX > chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX) colIndex = 7;
+    if(mouseY > chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY) rowIndex = 7;
+
+    const piece = e.target as HTMLElement;
+    piece.style.left = `calc(var(--cell-size) * (${colIndex} + 1) - 82px)`;
+    piece.style.top = `calc(var(--cell-size) * ${rowIndex})`;
+};
 
 const selectedPiece = reactive<BoardPiece>({ colIndex: -1, name: '', rowIndex: -1 });
 const playerId = 1;
