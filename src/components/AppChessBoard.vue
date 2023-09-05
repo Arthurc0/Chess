@@ -1,9 +1,10 @@
 <template>
     <div class="chess-board">
-        <div v-for="(_, colIndex) in boardPieces" class="column">
-            <div v-for="(piece, rowIndex) in boardPieces[colIndex]" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', piece.selected ? 'selected' : '']" @click="(e) => clickCell(rowIndex, colIndex)">
-                <img v-if="piece.name" :src="getImageUrl(piece.name)" />
-            </div>
+        <div class="piece" @dragstart="pieceDragEnter" v-for="piece in boardPieces" :style="[{ 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` }, { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }]">
+            <img :src="getImageUrl(piece.name)" />
+        </div>
+        <div v-for="(_, colIndex) in 8" class="column">
+            <div v-for="(_, rowIndex) in 8" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', selectedPiece.colIndex === colIndex && selectedPiece.rowIndex === rowIndex ? 'selected' : '']"></div>
         </div>
     </div>
 </template>
@@ -12,90 +13,46 @@
 import type { BoardPiece } from '@types/BoardPiece';
 import { reactive, ref } from 'vue';
 
-const boardPieces = ref<BoardPiece[][]>([
-    [
-        { name: 'b-rook', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-rook', playerId: 1 }
-    ],
-    [
-        { name: 'b-knight', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-knight', playerId: 1 }
-    ],
-    [
-        { name: 'b-bishop', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-bishop', playerId: 1 }
-    ],
-    [
-        { name: 'b-queen', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-queen', playerId: 1 }
-    ],
-    [
-        { name: 'b-king', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-king', playerId: 1 }
-    ],
-    [
-        { name: 'b-bishop', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-bishop', playerId: 1 }
-    ],
-    [
-        { name: 'b-knight', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-knight', playerId: 1 }
-    ],
-    [
-        { name: 'b-rook', playerId: 0 },
-        { name: 'b-pawn', playerId: 0 },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: '' },
-        { name: 'w-pawn', playerId: 1 },
-        { name: 'w-rook', playerId: 1 }
-    ]
+const pieceDragEnter = (): void => {
+    console.log('drag');
+};
+
+const boardPieces = ref<BoardPiece[]>([
+    { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
+    { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
+    { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
+    { colIndex: 3, name: 'b-queen', playerId: 0, rowIndex: 0 },
+    { colIndex: 4, name: 'b-king', playerId: 0, rowIndex: 0 },
+    { colIndex: 5, name: 'b-bishop', playerId: 0, rowIndex: 0 },
+    { colIndex: 6, name: 'b-knight', playerId: 0, rowIndex: 0 },
+    { colIndex: 7, name: 'b-rook', playerId: 0, rowIndex: 0 },
+    { colIndex: 0, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 1, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 2, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 3, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 4, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 5, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 6, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 7, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+    { colIndex: 0, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 1, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 2, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 3, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 4, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 5, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 6, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 7, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+    { colIndex: 0, name: 'w-rook', playerId: 1, rowIndex: 7 },
+    { colIndex: 1, name: 'w-knight', playerId: 1, rowIndex: 7 },
+    { colIndex: 2, name: 'w-bishop', playerId: 1, rowIndex: 7 },
+    { colIndex: 3, name: 'w-queen', playerId: 1, rowIndex: 7 },
+    { colIndex: 4, name: 'w-king', playerId: 1, rowIndex: 7 },
+    { colIndex: 5, name: 'w-bishop', playerId: 1, rowIndex: 7 },
+    { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
+    { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
 ]);
 
-const selectedPiece = reactive<BoardPiece>({ name: '' });
+const selectedPiece = reactive<BoardPiece>({ colIndex: -1, name: '', rowIndex: -1 });
 const playerId = 1;
 
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
