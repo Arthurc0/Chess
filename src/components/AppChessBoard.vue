@@ -111,9 +111,11 @@ const selectedPiece = reactive<BoardPiece>({ colIndex: -1, name: '', rowIndex: -
 const playerId = 1;
 
 const selectPiece = (piece: BoardPiece): void => {
+    const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
+
     // if no selected piece
     if(!selectedPiece.name) {
-        boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex)]!.selected = true;
+        boardPieces.value[pieceToSelectIndex]!.selected = true;
         boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
 
         Object.assign(selectedPiece, piece);
@@ -123,8 +125,10 @@ const selectPiece = (piece: BoardPiece): void => {
 
         // if not the same as current piece
         if(selectedPiece.colIndex !== piece.colIndex || selectedPiece.rowIndex !== piece.rowIndex) {
+            // TODO : Affecter les pieces selectionnées à des players (si pas déjà fait) et selectionner true la piece demandée
+
             // if piece belongs to the player
-            const pieceToSelect = boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex)];
+            const pieceToSelect = boardPieces.value[pieceToSelectIndex];
             if(pieceToSelect!.playerId === playerId) {
                 pieceToSelect!.selected = true;
                 boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
