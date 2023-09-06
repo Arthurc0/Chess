@@ -1,12 +1,12 @@
 <template>
     <div class="chess-board" ref="chessBoard" @drop="pieceDrop" @dragover.prevent>
-        <img class="piece" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
+        <img class="piece" @click="selectPiece(piece)" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
             { 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` },
             { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }
         ]" :src="getImageUrl(piece.name)" />
         <div v-for="(_, colIndex) in boardSquares" class="column">
-            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark']"></div>
+            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']"></div>
         </div>
     </div>
 </template>
@@ -110,6 +110,46 @@ const pieceDrop = (e: DragEvent): void => {
 const selectedPiece = reactive<BoardPiece>({ colIndex: -1, name: '', rowIndex: -1 });
 const playerId = 1;
 
+const selectPiece = (piece: BoardPiece): void => {
+    // if no selected piece
+    if(!selectedPiece.name) {
+        boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex)]!.selected = true;
+        boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+
+        Object.assign(selectedPiece, piece);
+    } else {
+        boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === selectedPiece.colIndex && p.rowIndex === selectedPiece.rowIndex)]!.selected = false;
+        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
+
+        // if not the same as current piece
+        if(selectedPiece.colIndex !== piece.colIndex || selectedPiece.rowIndex !== piece.rowIndex) {
+            // if piece belongs to the player
+            const pieceToSelect = boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex)];
+            if(pieceToSelect!.playerId === playerId) {
+                pieceToSelect!.selected = true;
+                boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+                selectedPiece.name = pieceToSelect!.name;
+                selectedPiece.colIndex = piece.colIndex;
+                selectedPiece.rowIndex = piece.rowIndex;
+            } else {
+                selectedPiece.name = '';
+            }
+            /*
+             else {
+                if(isValidMove(targetColIndex, targetRowIndex)) {
+                    boardPieces.value[targetColIndex]![targetRowIndex]!.name = selectedPiece.name;
+                    boardPieces.value[targetColIndex]![targetRowIndex]!.playerId = playerId;
+                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.name = '';
+                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.playerId = -1;
+                }
+            }
+            */
+        } else {
+            Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+        }
+    }
+};
+
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
     const pos = [firstIndex, secondIndex].sort((a, b) => a - b);
     return boardPieces.value[colIndex]?.filter((val, index) => val.name.length && index > pos[0]! && index < pos[1]!).length! > 0;
@@ -204,41 +244,6 @@ const isValidMove = (targetColIndex: number, targetRowIndex: number): boolean =>
         targetColIndex === selectedPiece.colIndex && targetRowIndex === selectedPiece.rowIndex! - 1;
     }
     return false;
-};
-
-const clickCell = (targetRowIndex: number, targetColIndex: number): void => {
-    console.log('Row :', targetRowIndex, 'Col :', targetColIndex);
-
-    // if no selected piece
-    if(!selectedPiece.name) {
-        // if piece belongs to the player
-        if(boardPieces.value[targetColIndex]![targetRowIndex]!.playerId === playerId) {
-            boardPieces.value[targetColIndex]![targetRowIndex]!.selected = true;
-            selectedPiece.name = boardPieces.value[targetColIndex]![targetRowIndex]!.name;
-            selectedPiece.colIndex = targetColIndex;
-            selectedPiece.rowIndex = targetRowIndex;
-        }
-    } else {
-        boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.selected = false;
-        // if not the same as current piece
-        if(selectedPiece.colIndex !== targetColIndex || selectedPiece.rowIndex !== targetRowIndex) {
-            // if piece belongs to the player
-            if(boardPieces.value[targetColIndex]![targetRowIndex]!.playerId === playerId) {
-                boardPieces.value[targetColIndex]![targetRowIndex]!.selected = true;
-                selectedPiece.name = boardPieces.value[targetColIndex]![targetRowIndex]!.name;
-                selectedPiece.colIndex = targetColIndex;
-                selectedPiece.rowIndex = targetRowIndex;
-            } else {
-                if(isValidMove(targetColIndex, targetRowIndex)) {
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.name = selectedPiece.name;
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.playerId = playerId;
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.name = '';
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.playerId = -1;
-                }
-                selectedPiece.name = '';
-            }
-        } else selectedPiece.name = '';
-    }
 };
 
 const getImageUrl = (path: string): string => {
