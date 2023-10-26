@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import type { BoardPiece } from '@types/BoardPiece';
-import type { BoardSquare } from '@types/BoardSquare';
+import { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
+import { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
 const pieceMovesCount = ref(2);
@@ -23,7 +23,7 @@ const cellSize = computed(() => {
     return parseFloat(getComputedStyle(document.body).getPropertyValue('--chess-board-size-number')) / parseFloat(getComputedStyle(document.body).getPropertyValue('--row-col-number'));
 });
 
-const boardSquares = ref<BoardSquare[][]>([
+const boardSquares = ref<BoardSquareInterface[][]>([
     [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
     [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
     [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
@@ -34,7 +34,7 @@ const boardSquares = ref<BoardSquare[][]>([
     [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
 ]);
 
-const boardPieces = ref<BoardPiece[]>([
+const boardPieces = ref<BoardPieceInterface[]>([
     { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
     { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
     { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
@@ -107,18 +107,23 @@ const pieceDrop = (e: DragEvent): void => {
     piece.style.top = `calc(var(--cell-size) * ${rowIndex})`;
 };
 
-const selectedPiece = reactive<BoardPiece>({ colIndex: -1, name: '', rowIndex: -1 });
+const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
 const playerId = 1;
 
-const selectPiece = (piece: BoardPiece): void => {
+const selectPiece = (piece: BoardPieceInterface): void => {
     const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
 
     // if no selected piece
     if(!selectedPiece.name) {
-        boardPieces.value[pieceToSelectIndex]!.selected = true;
-        boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+        const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
+        const pieceToSelect = boardPieces.value[pieceToSelectIndex];
 
-        Object.assign(selectedPiece, piece);
+        if(pieceToSelect!.playerId === playerId) {
+            boardPieces.value[pieceToSelectIndex]!.selected = true;
+            boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+
+            Object.assign(selectedPiece, piece);
+        }
     } else {
         boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === selectedPiece.colIndex && p.rowIndex === selectedPiece.rowIndex)]!.selected = false;
         boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;

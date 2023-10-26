@@ -15,7 +15,7 @@ export default defineConfig({
             { find: '@enums', replacement: fileURLToPath(new URL('./src/enums', import.meta.url)) },
             { find: '@layouts', replacement: fileURLToPath(new URL('./src/layouts', import.meta.url)) },
             { find: '@router', replacement: fileURLToPath(new URL('./src/router', import.meta.url)) },
-            { find: '@types', replacement: fileURLToPath(new URL('./src/types', import.meta.url)) },
+            { find: '@interfaces', replacement: fileURLToPath(new URL('./src/interfaces', import.meta.url)) },
             { find: '@views', replacement: fileURLToPath(new URL('./src/views', import.meta.url)) }
         ]
     }
