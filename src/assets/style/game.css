@@ -6,7 +6,6 @@
 }
 
 .piece {
-    cursor: grab;
     position: absolute;
     width: var(--cell-size);
 }
@@ -44,5 +43,5 @@
     background-color: #977357;
 }
 .cell.selected {
-    background-color: red;
+    background-color: rgba(207, 153, 52, 0.9);
 }

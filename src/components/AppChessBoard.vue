@@ -1,6 +1,6 @@
 <template>
     <div class="chess-board" ref="chessBoard" @drop="pieceDrop" @dragover.prevent>
-        <img class="piece" @click="selectPiece(piece)" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
+        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
             { 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` },
             { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }
@@ -16,7 +16,7 @@ import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
 import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
-const pieceMovesCount = ref(2);
+const pieceMovesCount = ref(1);
 const chessBoard = ref<HTMLElement>();
 
 const cellSize = computed(() => {
@@ -91,10 +91,7 @@ const pieceDragStart = (e: DragEvent): void => {
     (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
 };
 
-const pieceDrop = (e: DragEvent): void => {
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
+const getCellFromMousePosition = (mouseX: number, mouseY: number): { colIndex: number; rowIndex: number } => {
     let colIndex = Math.floor((mouseX - chessBoard.value!.offsetLeft + window.scrollX) / cellSize.value);
     let rowIndex = Math.floor((mouseY - chessBoard.value!.offsetTop + window.scrollY) / cellSize.value);
     if(mouseX < chessBoard.value!.offsetLeft - window.scrollX) colIndex = 0;
@@ -102,6 +99,14 @@ const pieceDrop = (e: DragEvent): void => {
     if(mouseX > chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX) colIndex = 7;
     if(mouseY > chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY) rowIndex = 7;
 
+    return { colIndex, rowIndex };
+};
+
+const pieceDrop = (e: DragEvent): void => {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    const { colIndex, rowIndex } = getCellFromMousePosition(mouseX, mouseY);
     const piece = e.target as HTMLElement;
     piece.style.left = `calc(var(--cell-size) * (${colIndex} + 1) - 82px)`;
     piece.style.top = `calc(var(--cell-size) * ${rowIndex})`;
