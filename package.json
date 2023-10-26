@@ -21,8 +21,6 @@
         "@vue/tsconfig": "^0.4.0",
         "eslint": "^8.39.0",
         "eslint-plugin-vue": "^9.11.0",
-        "sass": "^1.63.4",
-        "sass-loader": "^13.3.2",
         "typescript": "~5.0.4",
         "vite": "^4.3.5",
         "vue-eslint-parser": "^9.3.0",
