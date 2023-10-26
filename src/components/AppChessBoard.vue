@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
-import { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
+import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
+import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
 const pieceMovesCount = ref(2);
@@ -259,3 +259,7 @@ const getImageUrl = (path: string): string => {
     return new URL(`/src/assets/images/pieces/${path}.png`, import.meta.url).href;
 };
 </script>
+
+<style>
+@import url('@assets/style/game.css');
+</style>

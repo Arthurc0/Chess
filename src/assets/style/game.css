@@ -35,14 +35,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
 
-    &.light {
-        background-color: #cfb99c;
-    }
-    &.dark {
-        background-color: #977357;
-    }
-    &.selected {
-        background-color: red;
-    }
+.cell.light {
+    background-color: #cfb99c;
+}
+.cell.dark {
+    background-color: #977357;
+}
+.cell.selected {
+    background-color: red;
 }
