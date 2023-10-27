@@ -1,8 +1,8 @@
 <template>
-    <div class="chess-board" ref="chessBoard" @drop="pieceDrop" @dragover.prevent>
+    <div class="chess-board" ref="chessBoardElement" @drop="pieceDrop" @dragover.prevent>
         <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
-            { 'top': `calc(var(--cell-size) * (${piece.rowIndex} + 1) - 82px)` },
+            { 'top': `calc(var(--cell-size) * ${piece.rowIndex})` },
             { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }
         ]" :src="getImageUrl(piece.name)" />
         <div v-for="(_, colIndex) in boardSquares" class="column">
@@ -12,104 +12,26 @@
 </template>
 
 <script setup lang="ts">
+import { useChessBoard } from '@composables/useChessBoard';
 import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
 import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
-const pieceMovesCount = ref(1);
-const chessBoard = ref<HTMLElement>();
-
-const cellSize = computed(() => {
-    return parseFloat(getComputedStyle(document.body).getPropertyValue('--chess-board-size-number')) / parseFloat(getComputedStyle(document.body).getPropertyValue('--row-col-number'));
-});
-
-const boardSquares = ref<BoardSquareInterface[][]>([
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-    [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
-]);
-
-const boardPieces = ref<BoardPieceInterface[]>([
-    { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
-    { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
-    { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-    { colIndex: 3, name: 'b-queen', playerId: 0, rowIndex: 0 },
-    { colIndex: 4, name: 'b-king', playerId: 0, rowIndex: 0 },
-    { colIndex: 5, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-    { colIndex: 6, name: 'b-knight', playerId: 0, rowIndex: 0 },
-    { colIndex: 7, name: 'b-rook', playerId: 0, rowIndex: 0 },
-    { colIndex: 0, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 1, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 2, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 3, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 4, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 5, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 6, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 7, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-    { colIndex: 0, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 1, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 2, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 3, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 4, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 5, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 6, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 7, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-    { colIndex: 0, name: 'w-rook', playerId: 1, rowIndex: 7 },
-    { colIndex: 1, name: 'w-knight', playerId: 1, rowIndex: 7 },
-    { colIndex: 2, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-    { colIndex: 3, name: 'w-queen', playerId: 1, rowIndex: 7 },
-    { colIndex: 4, name: 'w-king', playerId: 1, rowIndex: 7 },
-    { colIndex: 5, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-    { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
-    { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
-]);
+const chessBoardElement = ref<HTMLElement>();
+const chessBoard = useChessBoard(chessBoardElement);
+const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
+const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
 
 const pieceDragging = (e: DragEvent): void => {
-    const piece = e.target as HTMLElement;
-
-    let mouseX = e.clientX;
-    let mouseY = e.clientY;
-
-    if(mouseX !== 0 && mouseY !== 0) {
-        if(mouseX < chessBoard.value!.offsetLeft - window.scrollX) mouseX = chessBoard.value!.offsetLeft - window.scrollX;
-        if(mouseY < chessBoard.value!.offsetTop - window.scrollY) mouseY = chessBoard.value!.offsetTop - window.scrollY;
-        if(mouseX > chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX) mouseX = chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX;
-        if(mouseY > chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY) mouseY = chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY;
-        piece.style.left = `calc(${mouseX - chessBoard.value!.offsetLeft + window.scrollX}px - (var(--cell-size) / 2))`;
-        piece.style.top = `calc(${mouseY - chessBoard.value!.offsetTop + window.scrollY}px - (var(--cell-size) / 2))`;
-    }
+    chessBoard.setPiecePosition(e);
 };
 
 const pieceDragStart = (e: DragEvent): void => {
-    e.dataTransfer!.effectAllowed = 'move';
-    e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
-    (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
-};
-
-const getCellFromMousePosition = (mouseX: number, mouseY: number): { colIndex: number; rowIndex: number } => {
-    let colIndex = Math.floor((mouseX - chessBoard.value!.offsetLeft + window.scrollX) / cellSize.value);
-    let rowIndex = Math.floor((mouseY - chessBoard.value!.offsetTop + window.scrollY) / cellSize.value);
-    if(mouseX < chessBoard.value!.offsetLeft - window.scrollX) colIndex = 0;
-    if(mouseY < chessBoard.value!.offsetTop - window.scrollY) rowIndex = 0;
-    if(mouseX > chessBoard.value!.clientWidth + chessBoard.value!.offsetLeft - window.scrollX) colIndex = 7;
-    if(mouseY > chessBoard.value!.clientHeight + chessBoard.value!.offsetTop - window.scrollY) rowIndex = 7;
-
-    return { colIndex, rowIndex };
+    chessBoard.pieceDragStyle(e);
 };
 
 const pieceDrop = (e: DragEvent): void => {
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    const { colIndex, rowIndex } = getCellFromMousePosition(mouseX, mouseY);
-    const piece = e.target as HTMLElement;
-    piece.style.left = `calc(var(--cell-size) * (${colIndex} + 1) - 82px)`;
-    piece.style.top = `calc(var(--cell-size) * ${rowIndex})`;
+    chessBoard.dropPiece(e);
 };
 
 const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });

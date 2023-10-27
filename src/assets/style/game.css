@@ -1,6 +1,5 @@
 :root {
-    --chess-board-size: 650px;
-    --chess-board-size-number: 650;
+    --chess-board-size: 600px;
     --row-col-number: 8;
     --cell-size: calc(var(--chess-board-size) / var(--row-col-number));
 }
