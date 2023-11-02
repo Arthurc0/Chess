@@ -74,17 +74,20 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         setPiecePosition(e: DragEvent, piecePlayer: number): void {
             if(!isCurrentPlayer(piecePlayer)) return;
             const piece = e.target as HTMLElement;
+            const chessBoardSize = document.querySelector('.chess-board')!.getBoundingClientRect().width;
 
             let mouseX = e.clientX;
             let mouseY = e.clientY;
 
             if(mouseX !== 0 && mouseY !== 0) {
-                if(mouseX < chessBoardElement.value!.offsetLeft - window.scrollX) mouseX = chessBoardElement.value!.offsetLeft - window.scrollX;
-                if(mouseY < chessBoardElement.value!.offsetTop - window.scrollY) mouseY = chessBoardElement.value!.offsetTop - window.scrollY;
-                if(mouseX > chessBoardElement.value!.clientWidth + chessBoardElement.value!.offsetLeft - window.scrollX) mouseX = chessBoardElement.value!.clientWidth + chessBoardElement.value!.offsetLeft - window.scrollX;
-                if(mouseY > chessBoardElement.value!.clientHeight + chessBoardElement.value!.offsetTop - window.scrollY) mouseY = chessBoardElement.value!.clientHeight + chessBoardElement.value!.offsetTop - window.scrollY;
-                piece.style.left = `calc(${mouseX - chessBoardElement.value!.offsetLeft + window.scrollX}px - (var(--cell-size) / 2))`;
-                piece.style.top = `calc(${mouseY - chessBoardElement.value!.offsetTop + window.scrollY}px - (var(--cell-size) / 2))`;
+                if(mouseX - chessBoardElement.value!.offsetLeft + window.scrollX > chessBoardSize) mouseX = chessBoardSize + chessBoardElement.value!.offsetLeft;
+                // if(mouseY < chessBoardElement.value!.offsetTop - window.scrollY) mouseY = chessBoardElement.value!.offsetTop - window.scrollY;
+                // if(mouseX > chessBoardElement.value!.clientWidth + chessBoardElement.value!.offsetLeft - window.scrollX) mouseX = chessBoardElement.value!.clientWidth + chessBoardElement.value!.offsetLeft - window.scrollX;
+                // if(mouseY > chessBoardElement.value!.clientHeight + chessBoardElement.value!.offsetTop - window.scrollY) mouseY = chessBoardElement.value!.clientHeight + chessBoardElement.value!.offsetTop - window.scrollY;
+
+                const translatePosX = 50 * ((mouseX - chessBoardElement.value!.offsetLeft + window.scrollX) / (cellSize.value / 2) - 1);
+                const translatePosY = 50 * ((mouseY - chessBoardElement.value!.offsetTop + window.scrollY) / (cellSize.value / 2) - 1);
+                piece.style.transform = `translate(${translatePosX}%, ${translatePosY}%)`;
             }
         },
         pieceDragStyle(e: DragEvent): void {
@@ -98,8 +101,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
 
             const { colIndex, rowIndex } = getCellFromMousePosition(mouseX, mouseY);
             const piece = e.target as HTMLElement;
-            piece.style.left = `calc(var(--cell-size) * ${colIndex})`;
-            piece.style.top = `calc(var(--cell-size) * ${rowIndex})`;
+            piece.style.transform = `translate(${colIndex * 100}%, ${rowIndex * 100}%)`;
         }
     };
 };
