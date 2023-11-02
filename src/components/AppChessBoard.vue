@@ -1,5 +1,5 @@
 <template>
-    <div class="chess-board" ref="chessBoardElement" @drop="pieceDrop" @dragover.prevent>
+    <div class="chess-board" ref="chessBoardElement" @drop="dropPiece" @dragover.prevent>
         <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece.playerId)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
             { 'transform': `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }
@@ -29,8 +29,8 @@ const pieceDragStart = (e: DragEvent): void => {
     chessBoard.pieceDragStyle(e);
 };
 
-const pieceDrop = (e: DragEvent): void => {
-    chessBoard.dropPiece(e);
+const dropPiece = (e: DragEvent): void => {
+    chessBoard.dropPiece(e, 'drag');
 };
 
 const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
