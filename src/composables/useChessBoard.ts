@@ -72,7 +72,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
             [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
         ]),
-        boardPieces: ref([
+        boardPieces: ref<BoardPieceInterface[]>([
             { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
             { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
             { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
@@ -135,6 +135,49 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
             (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
         },
-        dropPiece
+        dropPiece,
+        getBoardPieceIndex(colIndex: number, rowIndex: number): number {
+            return this.boardPieces.value.findIndex((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+        },
+        selectPiece(piece: BoardPieceInterface): void {
+            // if no selected piece
+            if(!selectedPiece.name) {
+                const pieceToSelectIndex = this.getBoardPieceIndex(piece.colIndex, piece.rowIndex);
+                const pieceToSelect = this.boardPieces.value[pieceToSelectIndex];
+
+                if(isCurrentPlayer(pieceToSelect!.playerId)) {
+                    this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+
+                    Object.assign(selectedPiece, piece);
+                }
+            } else {
+                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
+
+                // if not the same as current piece
+                if(piece.colIndex !== selectedPiece.colIndex || piece.rowIndex !== selectedPiece.rowIndex) {
+                    if(isCurrentPlayer(this.boardPieces.value[this.getBoardPieceIndex(piece.colIndex, piece.rowIndex)]!.playerId)) {
+                        this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+
+                        Object.assign(selectedPiece, piece);
+                    }
+                } else {
+                    Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+                }
+            }
+        },
+        clickSquare(colIndex: number, rowIndex: number): void {
+            if(selectedPiece.name) {
+                const selectedPieceIndex = this.getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
+                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
+                this.boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
+                this.boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;
+                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
+                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
+                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
+
+                Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+            }
+            console.log(this.boardSquares.value);
+        }
     };
 };

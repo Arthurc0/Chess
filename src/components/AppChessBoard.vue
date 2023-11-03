@@ -5,7 +5,7 @@
             { 'transform': `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }
         ]" :src="getImageUrl(piece.name)" />
         <div v-for="(_, colIndex) in boardSquares" class="column">
-            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']"></div>
+            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']" @click="clickSquare(colIndex, rowIndex)"></div>
         </div>
     </div>
 </template>
@@ -20,6 +20,10 @@ const chessBoardElement = ref<HTMLElement>();
 const chessBoard = useChessBoard(chessBoardElement);
 const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
 const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
+
+const clickSquare = (colIndex: number, rowIndex: number): void => {
+    chessBoard.clickSquare(colIndex, rowIndex);
+};
 
 const pieceDragging = (e: DragEvent, piece: BoardPieceInterface): void => {
     chessBoard.setPiecePosition(e, piece);
@@ -37,52 +41,7 @@ const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', ro
 const playerId = 1;
 
 const selectPiece = (piece: BoardPieceInterface): void => {
-    const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
-
-    // if no selected piece
-    if(!selectedPiece.name) {
-        const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
-        const pieceToSelect = boardPieces.value[pieceToSelectIndex];
-
-        if(pieceToSelect!.playerId === playerId) {
-            boardPieces.value[pieceToSelectIndex]!.selected = true;
-            boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-
-            Object.assign(selectedPiece, piece);
-        }
-    } else {
-        boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === selectedPiece.colIndex && p.rowIndex === selectedPiece.rowIndex)]!.selected = false;
-        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
-
-        // if not the same as current piece
-        if(selectedPiece.colIndex !== piece.colIndex || selectedPiece.rowIndex !== piece.rowIndex) {
-            // TODO : Affecter les pieces selectionnées à des players (si pas déjà fait) et selectionner true la piece demandée
-
-            // if piece belongs to the player
-            const pieceToSelect = boardPieces.value[pieceToSelectIndex];
-            if(pieceToSelect!.playerId === playerId) {
-                pieceToSelect!.selected = true;
-                boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-                selectedPiece.name = pieceToSelect!.name;
-                selectedPiece.colIndex = piece.colIndex;
-                selectedPiece.rowIndex = piece.rowIndex;
-            } else {
-                selectedPiece.name = '';
-            }
-            /*
-             else {
-                if(isValidMove(targetColIndex, targetRowIndex)) {
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.name = selectedPiece.name;
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.playerId = playerId;
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.name = '';
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.playerId = -1;
-                }
-            }
-            */
-        } else {
-            Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
-        }
-    }
+    chessBoard.selectPiece(piece);
 };
 
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
