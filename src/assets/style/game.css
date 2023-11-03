@@ -2,11 +2,14 @@
     --chess-board-size: 600px;
     --row-col-number: 8;
     --cell-size: calc(var(--chess-board-size) / var(--row-col-number));
+    --transition: none;
 }
 
 .piece {
     position: absolute;
     width: var(--cell-size);
+    will-change: transform;
+    transition: var(--transition);
 }
 
 *.chess-board {

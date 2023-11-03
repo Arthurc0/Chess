@@ -1,12 +1,11 @@
 <template>
-    <div class="chess-board" ref="chessBoardElement" @drop="pieceDrop" @dragover.prevent>
-        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece.playerId)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
+    <div class="chess-board" ref="chessBoardElement" @drop="dropPiece" @dragover.prevent>
+        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
-            { 'top': `calc(var(--cell-size) * ${piece.rowIndex})` },
-            { 'left': `calc(var(--cell-size) * ${piece.colIndex})` }
+            { 'transform': `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }
         ]" :src="getImageUrl(piece.name)" />
         <div v-for="(_, colIndex) in boardSquares" class="column">
-            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']"></div>
+            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']" @click="clickSquare(colIndex, rowIndex)"></div>
         </div>
     </div>
 </template>
@@ -22,69 +21,29 @@ const chessBoard = useChessBoard(chessBoardElement);
 const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
 const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
 
-const pieceDragging = (e: DragEvent, piecePlayer: number): void => {
-    chessBoard.setPiecePosition(e, piecePlayer);
+const clickSquare = (colIndex: number, rowIndex: number): void => {
+    chessBoard.clickSquare(colIndex, rowIndex);
+};
+
+const pieceDragging = (e: DragEvent, piece: BoardPieceInterface): void => {
+    chessBoard.setPiecePosition(e, piece);
 };
 
 const pieceDragStart = (e: DragEvent): void => {
     chessBoard.pieceDragStyle(e);
 };
 
-const pieceDrop = (e: DragEvent): void => {
-    chessBoard.dropPiece(e);
+const dropPiece = (e: DragEvent): void => {
+    chessBoard.dropPiece(e, 'drag');
 };
+
+const selectPiece = (piece: BoardPieceInterface): void => {
+    chessBoard.selectPiece(piece);
+};
+
 
 const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
 const playerId = 1;
-
-const selectPiece = (piece: BoardPieceInterface): void => {
-    const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
-
-    // if no selected piece
-    if(!selectedPiece.name) {
-        const pieceToSelectIndex = boardPieces.value.findIndex((p) => p.colIndex === piece.colIndex && p.rowIndex === piece.rowIndex);
-        const pieceToSelect = boardPieces.value[pieceToSelectIndex];
-
-        if(pieceToSelect!.playerId === playerId) {
-            boardPieces.value[pieceToSelectIndex]!.selected = true;
-            boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-
-            Object.assign(selectedPiece, piece);
-        }
-    } else {
-        boardPieces.value[boardPieces.value.findIndex((p) => p.colIndex === selectedPiece.colIndex && p.rowIndex === selectedPiece.rowIndex)]!.selected = false;
-        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
-
-        // if not the same as current piece
-        if(selectedPiece.colIndex !== piece.colIndex || selectedPiece.rowIndex !== piece.rowIndex) {
-            // TODO : Affecter les pieces selectionnées à des players (si pas déjà fait) et selectionner true la piece demandée
-
-            // if piece belongs to the player
-            const pieceToSelect = boardPieces.value[pieceToSelectIndex];
-            if(pieceToSelect!.playerId === playerId) {
-                pieceToSelect!.selected = true;
-                boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-                selectedPiece.name = pieceToSelect!.name;
-                selectedPiece.colIndex = piece.colIndex;
-                selectedPiece.rowIndex = piece.rowIndex;
-            } else {
-                selectedPiece.name = '';
-            }
-            /*
-             else {
-                if(isValidMove(targetColIndex, targetRowIndex)) {
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.name = selectedPiece.name;
-                    boardPieces.value[targetColIndex]![targetRowIndex]!.playerId = playerId;
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.name = '';
-                    boardPieces.value[selectedPiece.colIndex!]![selectedPiece.rowIndex!]!.playerId = -1;
-                }
-            }
-            */
-        } else {
-            Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
-        }
-    }
-};
 
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
     const pos = [firstIndex, secondIndex].sort((a, b) => a - b);
