@@ -131,6 +131,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             }
         },
         pieceDragStyle(e: DragEvent): void {
+            document.documentElement.style.setProperty('--transition', 'none');
             e.dataTransfer!.effectAllowed = 'move';
             e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
             (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
@@ -167,6 +168,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         },
         clickSquare(colIndex: number, rowIndex: number): void {
             if(selectedPiece.name) {
+                document.documentElement.style.setProperty('--transition', 'transform 0.15s ease-in-out');
                 const selectedPieceIndex = this.getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
                 this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
                 this.boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
@@ -177,7 +179,6 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
 
                 Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
             }
-            console.log(this.boardSquares.value);
         }
     };
 };

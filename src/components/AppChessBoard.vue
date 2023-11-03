@@ -37,12 +37,13 @@ const dropPiece = (e: DragEvent): void => {
     chessBoard.dropPiece(e, 'drag');
 };
 
-const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
-const playerId = 1;
-
 const selectPiece = (piece: BoardPieceInterface): void => {
     chessBoard.selectPiece(piece);
 };
+
+
+const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
+const playerId = 1;
 
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
     const pos = [firstIndex, secondIndex].sort((a, b) => a - b);
