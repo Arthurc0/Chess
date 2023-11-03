@@ -1,6 +1,6 @@
 <template>
     <div class="chess-board" ref="chessBoardElement" @drop="dropPiece" @dragover.prevent>
-        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece.playerId)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
+        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
         :style="[
             { 'transform': `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }
         ]" :src="getImageUrl(piece.name)" />
@@ -21,8 +21,8 @@ const chessBoard = useChessBoard(chessBoardElement);
 const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
 const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
 
-const pieceDragging = (e: DragEvent, piecePlayer: number): void => {
-    chessBoard.setPiecePosition(e, piecePlayer);
+const pieceDragging = (e: DragEvent, piece: BoardPieceInterface): void => {
+    chessBoard.setPiecePosition(e, piece);
 };
 
 const pieceDragStart = (e: DragEvent): void => {

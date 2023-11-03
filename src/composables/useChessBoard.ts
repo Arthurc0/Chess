@@ -1,11 +1,14 @@
+import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
 import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
 import type { Ref } from 'vue';
+import { reactive } from 'vue';
 import { onMounted, onUnmounted, computed, ref } from 'vue';
 
 export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) => {
     const pieceMovesCount = ref(1);
     const cellSize = computed(() => document.querySelector('.cell')!.clientWidth);
     const currentPlayerId = ref(1);
+    const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1, playerId: -1 });
     const chessBoardSize = computed(() => chessBoardElement.value!.clientWidth);
     const draggingPiece = ref(false);
 
@@ -30,6 +33,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
+        if(!isCurrentPlayer(selectedPiece.playerId)) return;
         draggingPiece.value = false;
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -102,10 +106,10 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
             { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
         ]),
-        setPiecePosition(e: DragEvent, piecePlayer: number): void {
-            if(!isCurrentPlayer(piecePlayer)) return;
+        setPiecePosition(e: DragEvent, piece: BoardPieceInterface): void {
+            Object.assign(selectedPiece, piece);
+            if(!isCurrentPlayer(piece.playerId)) return;
             if(!draggingPiece.value) draggingPiece.value = true;
-            const piece = e.target as HTMLElement;
 
             let mouseX = e.clientX;
             let mouseY = e.clientY;
@@ -123,7 +127,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
                 const translatePosX = 50 * ((mouseX - chessBoardElement.value!.offsetLeft + window.scrollX) / (cellSize.value / 2) - 1);
                 const translatePosY = 50 * ((mouseY - chessBoardElement.value!.offsetTop + window.scrollY) / (cellSize.value / 2) - 1);
 
-                piece.style.transform = `translate(${translatePosX}%, ${translatePosY}%)`;
+                (e.target as HTMLElement).style.transform = `translate(${translatePosX}%, ${translatePosY}%)`;
             }
         },
         pieceDragStyle(e: DragEvent): void {
