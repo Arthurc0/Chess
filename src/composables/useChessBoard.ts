@@ -1,5 +1,5 @@
-import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
-import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
+import type { BoardPieceInterface } from '@/interfaces/BoardPieceInterface';
+import type { BoardSquareInterface } from '@/interfaces/BoardSquareInterface';
 import type { Ref } from 'vue';
 import { reactive } from 'vue';
 import { onMounted, onUnmounted, computed, ref } from 'vue';

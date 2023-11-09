@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import AppChessBoard from '@components/AppChessBoard.vue';
+import AppChessBoard from '@/components/AppChessBoard.vue';
 </script>

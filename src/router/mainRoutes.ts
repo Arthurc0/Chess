@@ -1,6 +1,6 @@
-import { RouteEnum } from '@enums/RouteEnum';
-import DefaultLayout from '@layouts/DefaultLayout.vue';
-import Game from '@views/Game.vue';
+import { RouteEnum } from '@/enums/RouteEnum';
+import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import Game from '@/views/Game.vue';
 
 export const mainRoutes = [
     {

@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { useChessBoard } from '@composables/useChessBoard';
-import type { BoardPieceInterface } from '@interfaces/BoardPieceInterface';
-import type { BoardSquareInterface } from '@interfaces/BoardSquareInterface';
+import { useChessBoard } from '@/composables/useChessBoard';
+import type { BoardPieceInterface } from '@/interfaces/BoardPieceInterface';
+import type { BoardSquareInterface } from '@/interfaces/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
 const chessBoardElement = ref<HTMLElement>();
@@ -147,5 +147,5 @@ const getImageUrl = (path: string): string => {
 </script>
 
 <style>
-@import url('@assets/style/game.css');
+@import url('@/assets/style/game.css');
 </style>
