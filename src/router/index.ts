@@ -1,18 +1,15 @@
-import { mainRoutes } from '@router/mainRoutes';
+import { RouteEnum } from '@/enums/RouteEnum';
+import { mainRoutes } from '@/router/mainRoutes';
+import { authRoutes } from '@/router/authRoutes';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
-    history: createWebHistory('/'),
+    history: createWebHistory(RouteEnum.HOME),
     routes: [
         ...mainRoutes,
-        { path: '/:pathMatch(.*)', redirect: '/' }
+        ...authRoutes,
+        { path: '/:pathMatch(.*)', redirect: RouteEnum.HOME }
     ]
-});
-
-router.beforeEach(async (to, from, next) => {
-    // if(to.meta.requiresAuth) {
-    // }
-    return next();
 });
 
 export default router;

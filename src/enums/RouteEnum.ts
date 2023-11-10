@@ -1,3 +1,4 @@
 export enum RouteEnum {
-    HOME = '/'
+    HOME = '/',
+    LOGIN = '/auth/login'
 }

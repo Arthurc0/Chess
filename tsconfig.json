@@ -15,15 +15,9 @@
         "noUncheckedIndexedAccess": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
+        "types": ["vite/client"],
         "paths": {
-            "@assets/*": ["./src/assets/*"],
-            "@components/*": ["./src/components/*"],
-            "@composables/*": ["./src/composables/*"],
-            "@enums/*": ["./src/enums/*"],
-            "@layouts/*": ["./src/layouts/*"],
-            "@router/*": ["./src/router/*"],
-            "@interfaces/*": ["./src/interfaces/*"],
-            "@views/*": ["./src/views/*"]
+            "@/*": ["./src/*"]
         },
         "resolveJsonModule": true,
         "skipLibCheck": true,

@@ -51,7 +51,6 @@ module.exports = {
         '@typescript-eslint/no-unnecessary-qualifier': 'error',
         '@typescript-eslint/no-unnecessary-type-constraint': 'error',
         '@typescript-eslint/no-unsafe-argument': 'error',
-        '@typescript-eslint/no-unsafe-call': 'error',
         '@typescript-eslint/no-unsafe-declaration-merging': 'error',
         '@typescript-eslint/no-unsafe-return': 'error',
         '@typescript-eslint/no-useless-empty-export': 'error',
@@ -259,9 +258,6 @@ module.exports = {
                 allowEmptyCatch: false
             }
         ],
-        'no-empty-function': [
-            'error'
-        ],
         'no-empty-pattern': [
             'error'
         ],
@@ -375,9 +371,6 @@ module.exports = {
             'error'
         ],
         'no-return-assign': [
-            'error'
-        ],
-        'no-return-await': [
             'error'
         ],
         'no-script-url': [
@@ -534,14 +527,14 @@ module.exports = {
         ],
         'quotes': [
             'error',
-            'single'
+            'single',
+            {
+                'allowTemplateLiterals': true
+            },
         ],
         'radix': [
             'error',
             'as-needed'
-        ],
-        'require-await': [
-            'error'
         ],
         'rest-spread-spacing': [
             'error',
