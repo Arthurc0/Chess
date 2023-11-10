@@ -1,6 +1,6 @@
 import { RouteEnum } from '@/enums/RouteEnum';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import Game from '@/views/Game.vue';
+const Game = async () => import('@/views/Game.vue');
 
 export const mainRoutes = [
     {
@@ -8,7 +8,6 @@ export const mainRoutes = [
         meta: {
             layout: DefaultLayout
         },
-        name: 'game',
         path: RouteEnum.HOME
     }
 ];

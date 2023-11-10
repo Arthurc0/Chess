@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import { useChessBoard } from '@/composables/useChessBoard';
-import type { BoardPieceInterface } from '@/interfaces/BoardPieceInterface';
-import type { BoardSquareInterface } from '@/interfaces/BoardSquareInterface';
+import type { BoardPieceInterface } from '@/interfaces/board/BoardPieceInterface';
+import type { BoardSquareInterface } from '@/interfaces/board/BoardSquareInterface';
 import { computed, reactive, ref } from 'vue';
 
 const chessBoardElement = ref<HTMLElement>();
