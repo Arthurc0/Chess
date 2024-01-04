@@ -32,24 +32,6 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         return playerId === currentPlayerId.value;
     };
 
-    const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
-        if (!selectedPiece.name) return;
-        draggingPiece.value = false;
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        const { colIndex, rowIndex } = getCellFromMousePosition(mouseX, mouseY);
-
-        let piece = null;
-        if (type === 'mouse') piece = (e as MouseEvent).relatedTarget as HTMLElement;
-        else piece = (e as DragEvent).target as HTMLElement;
-
-        piece.style.transform = `translate(${colIndex * 100}%, ${rowIndex * 100}%)`;
-    };
-
-    const mouseOver = (event: MouseEvent) => {
-        if (draggingPiece.value) dropPiece(event, 'mouse');
-    };
-
     const boardSquares = ref<BoardSquareInterface[][]>([
         [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
         [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
@@ -62,9 +44,78 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     ]);
 
     const unselectPiece = () => {
-        if (!selectedPiece.name) return;
-        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
+        if (selectedPiece.name) boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
         Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+    };
+    const setSelectedPiece = (piece: BoardPieceInterface) => {
+        boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+        Object.assign(selectedPiece, piece);
+    };
+
+    const boardPieces = ref<BoardPieceInterface[]>([
+        { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
+        { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
+        { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
+        { colIndex: 3, name: 'b-queen', playerId: 0, rowIndex: 0 },
+        { colIndex: 4, name: 'b-king', playerId: 0, rowIndex: 0 },
+        { colIndex: 5, name: 'b-bishop', playerId: 0, rowIndex: 0 },
+        { colIndex: 6, name: 'b-knight', playerId: 0, rowIndex: 0 },
+        { colIndex: 7, name: 'b-rook', playerId: 0, rowIndex: 0 },
+        { colIndex: 0, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 1, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 2, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 3, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 4, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 5, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 6, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 7, name: 'b-pawn', playerId: 0, rowIndex: 1 },
+        { colIndex: 0, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 1, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 2, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 3, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 4, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 5, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 6, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 7, name: 'w-pawn', playerId: 1, rowIndex: 6 },
+        { colIndex: 0, name: 'w-rook', playerId: 1, rowIndex: 7 },
+        { colIndex: 1, name: 'w-knight', playerId: 1, rowIndex: 7 },
+        { colIndex: 2, name: 'w-bishop', playerId: 1, rowIndex: 7 },
+        { colIndex: 3, name: 'w-queen', playerId: 1, rowIndex: 7 },
+        { colIndex: 4, name: 'w-king', playerId: 1, rowIndex: 7 },
+        { colIndex: 5, name: 'w-bishop', playerId: 1, rowIndex: 7 },
+        { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
+        { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
+    ]);
+
+    const getBoardPieceIndex = (colIndex: number, rowIndex: number): number => {
+        return boardPieces.value.findIndex((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+    };
+
+    const placeSelectedPiece = (colIndex: number, rowIndex: number) => {
+        const selectedPieceIndex = getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
+        boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
+        boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;
+        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
+        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
+    };
+
+    const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
+        draggingPiece.value = false;
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const { colIndex, rowIndex } = getCellFromMousePosition(mouseX, mouseY);
+
+        let piece = null;
+        if (type === 'mouse') piece = (e as MouseEvent).relatedTarget as HTMLElement;
+        else piece = (e as DragEvent).target as HTMLElement;
+
+        piece.style.transform = `translate(${colIndex * 100}%, ${rowIndex * 100}%)`;
+        placeSelectedPiece(colIndex, rowIndex);
+        unselectPiece();
+    };
+
+    const mouseOver = (event: MouseEvent) => {
+        if (draggingPiece.value) dropPiece(event, 'mouse');
     };
 
     onMounted(() => {
@@ -80,43 +131,9 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
 
     return {
         boardSquares,
-        boardPieces: ref<BoardPieceInterface[]>([
-            { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
-            { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
-            { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-            { colIndex: 3, name: 'b-queen', playerId: 0, rowIndex: 0 },
-            { colIndex: 4, name: 'b-king', playerId: 0, rowIndex: 0 },
-            { colIndex: 5, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-            { colIndex: 6, name: 'b-knight', playerId: 0, rowIndex: 0 },
-            { colIndex: 7, name: 'b-rook', playerId: 0, rowIndex: 0 },
-            { colIndex: 0, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 1, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 2, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 3, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 4, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 5, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 6, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 7, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-            { colIndex: 0, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 1, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 2, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 3, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 4, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 5, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 6, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 7, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-            { colIndex: 0, name: 'w-rook', playerId: 1, rowIndex: 7 },
-            { colIndex: 1, name: 'w-knight', playerId: 1, rowIndex: 7 },
-            { colIndex: 2, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-            { colIndex: 3, name: 'w-queen', playerId: 1, rowIndex: 7 },
-            { colIndex: 4, name: 'w-king', playerId: 1, rowIndex: 7 },
-            { colIndex: 5, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-            { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
-            { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
-        ]),
+        boardPieces,
         movePiece(e: DragEvent, piece: BoardPieceInterface): void {
             if (!isCurrentPlayer(piece.playerId)) return;
-            Object.assign(selectedPiece, piece);
             if (!draggingPiece.value) draggingPiece.value = true;
 
             let mouseX = e.clientX;
@@ -141,23 +158,19 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         pieceDragStyle(e: DragEvent, piece: BoardPieceInterface): void {
             e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
             e.dataTransfer!.effectAllowed = 'move';
-            if (!isCurrentPlayer(piece.playerId)) {
-                unselectPiece();
-                return;
-            }
+            unselectPiece();
+            if (!isCurrentPlayer(piece.playerId)) return;
+            setSelectedPiece(piece);
             document.documentElement.style.setProperty('--transition', 'none');
             (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
         },
         dropPiece,
-        getBoardPieceIndex(colIndex: number, rowIndex: number): number {
-            return this.boardPieces.value.findIndex((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
-        },
+        getBoardPieceIndex,
         selectPiece(piece: BoardPieceInterface): void {
             // if no selected piece
             if (!selectedPiece.name) {
                 if (isCurrentPlayer(piece.playerId)) {
-                    this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-                    Object.assign(selectedPiece, piece);
+                    setSelectedPiece(piece);
                 }
             } else {
                 this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
@@ -165,9 +178,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
                 // if not the same as current piece
                 if (piece.colIndex !== selectedPiece.colIndex || piece.rowIndex !== selectedPiece.rowIndex) {
                     if (isCurrentPlayer(this.boardPieces.value[this.getBoardPieceIndex(piece.colIndex, piece.rowIndex)]!.playerId)) {
-                        this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-
-                        Object.assign(selectedPiece, piece);
+                        setSelectedPiece(piece);
                     } else unselectPiece();
                 } else {
                     unselectPiece();
@@ -177,14 +188,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         clickSquare(colIndex: number, rowIndex: number): void {
             if (selectedPiece.name) {
                 document.documentElement.style.setProperty('--transition', 'transform 0.15s ease-in-out');
-                const selectedPieceIndex = this.getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
-                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
-                this.boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
-                this.boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;
-                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
-                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
-                this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
-
+                placeSelectedPiece(colIndex, rowIndex);
                 unselectPiece();
             }
         }
