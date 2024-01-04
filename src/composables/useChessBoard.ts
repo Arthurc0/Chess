@@ -33,7 +33,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
-        if (!isCurrentPlayer(selectedPiece.playerId)) return;
+        if (!selectedPiece.name) return;
         draggingPiece.value = false;
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -49,7 +49,21 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     const mouseOver = (event: MouseEvent) => {
         if (draggingPiece.value) dropPiece(event, 'mouse');
     };
+
+    const boardSquares = ref<BoardSquareInterface[][]>([
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
+        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
+    ]);
+
     const unselectPiece = () => {
+        if (!selectedPiece.name) return;
+        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
         Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
     };
 
@@ -65,16 +79,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     });
 
     return {
-        boardSquares: ref<BoardSquareInterface[][]>([
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-            [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
-        ]),
+        boardSquares,
         boardPieces: ref<BoardPieceInterface[]>([
             { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
             { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
@@ -133,10 +138,14 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
                 (e.target as HTMLElement).style.transform = `translate(${translatePosX}%, ${translatePosY}%)`;
             }
         },
-        pieceDragStyle(e: DragEvent): void {
-            document.documentElement.style.setProperty('--transition', 'none');
-            e.dataTransfer!.effectAllowed = 'move';
+        pieceDragStyle(e: DragEvent, piece: BoardPieceInterface): void {
             e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
+            e.dataTransfer!.effectAllowed = 'move';
+            if (!isCurrentPlayer(piece.playerId)) {
+                unselectPiece();
+                return;
+            }
+            document.documentElement.style.setProperty('--transition', 'none');
             (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
         },
         dropPiece,
