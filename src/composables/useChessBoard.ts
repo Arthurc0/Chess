@@ -49,6 +49,9 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     const mouseOver = (event: MouseEvent) => {
         if (draggingPiece.value) dropPiece(event, 'mouse');
     };
+    const unselectPiece = () => {
+        Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+    };
 
     onMounted(() => {
         document.addEventListener('mouseover', (event: MouseEvent) => {
@@ -143,10 +146,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         selectPiece(piece: BoardPieceInterface): void {
             // if no selected piece
             if (!selectedPiece.name) {
-                const pieceToSelectIndex = this.getBoardPieceIndex(piece.colIndex, piece.rowIndex);
-                const pieceToSelect = this.boardPieces.value[pieceToSelectIndex];
-
-                if (isCurrentPlayer(pieceToSelect!.playerId)) {
+                if (isCurrentPlayer(piece.playerId)) {
                     this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
                     Object.assign(selectedPiece, piece);
                 }
@@ -159,9 +159,9 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
                         this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
 
                         Object.assign(selectedPiece, piece);
-                    }
+                    } else unselectPiece();
                 } else {
-                    Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+                    unselectPiece();
                 }
             }
         },
@@ -176,7 +176,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
                 this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
                 this.boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
 
-                Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
+                unselectPiece();
             }
         }
     };
