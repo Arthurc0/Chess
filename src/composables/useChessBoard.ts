@@ -106,7 +106,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
             { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
         ]),
-        setPiecePosition(e: DragEvent, piece: BoardPieceInterface): void {
+        movePiece(e: DragEvent, piece: BoardPieceInterface): void {
             Object.assign(selectedPiece, piece);
             if (!isCurrentPlayer(piece.playerId)) return;
             if (!draggingPiece.value) draggingPiece.value = true;
