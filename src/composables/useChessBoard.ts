@@ -107,8 +107,8 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
         ]),
         movePiece(e: DragEvent, piece: BoardPieceInterface): void {
-            Object.assign(selectedPiece, piece);
             if (!isCurrentPlayer(piece.playerId)) return;
+            Object.assign(selectedPiece, piece);
             if (!draggingPiece.value) draggingPiece.value = true;
 
             let mouseX = e.clientX;
@@ -148,7 +148,6 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
 
                 if (isCurrentPlayer(pieceToSelect!.playerId)) {
                     this.boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
-
                     Object.assign(selectedPiece, piece);
                 }
             } else {
