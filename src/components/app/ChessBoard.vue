@@ -1,11 +1,8 @@
 <template>
     <div class="chess-board" ref="chessBoardElement" @drop="dropPiece" @dragover.prevent>
-        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart" v-for="piece in boardPieces"
-        :style="[
-            { 'transform': `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }
-        ]" :src="getImageUrl(piece.name)" />
-        <div v-for="(_, colIndex) in boardSquares" class="column">
-            <div v-for="(_, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']" @click="clickSquare(colIndex, rowIndex)"></div>
+        <img class="piece" :class="isCurrentPlayer(piece.playerId) ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart($event, piece)" v-for="piece in boardPieces" :style="[{ transform: `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }]" :src="getImageUrl(piece.name)" />
+        <div v-for="(_1, colIndex) in boardSquares" :key="colIndex" class="column">
+            <div v-for="(_2, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']" @click="clickSquare(colIndex, rowIndex)"></div>
         </div>
     </div>
 </template>
@@ -14,23 +11,27 @@
 import { useChessBoard } from '@/composables/useChessBoard';
 import type { BoardPieceInterface } from '@/interfaces/board/BoardPieceInterface';
 import type { BoardSquareInterface } from '@/interfaces/board/BoardSquareInterface';
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const chessBoardElement = ref<HTMLElement>();
 const chessBoard = useChessBoard(chessBoardElement);
 const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
 const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
 
+const isCurrentPlayer = (playerId: number): boolean => {
+    return chessBoard.isCurrentPlayer(playerId);
+};
+
 const clickSquare = (colIndex: number, rowIndex: number): void => {
     chessBoard.clickSquare(colIndex, rowIndex);
 };
 
 const pieceDragging = (e: DragEvent, piece: BoardPieceInterface): void => {
-    chessBoard.setPiecePosition(e, piece);
+    chessBoard.movePiece(e, piece);
 };
 
-const pieceDragStart = (e: DragEvent): void => {
-    chessBoard.pieceDragStyle(e);
+const pieceDragStart = (e: DragEvent, piece: BoardPieceInterface): void => {
+    chessBoard.pieceDragStyle(e, piece);
 };
 
 const dropPiece = (e: DragEvent): void => {
@@ -41,9 +42,8 @@ const selectPiece = (piece: BoardPieceInterface): void => {
     chessBoard.selectPiece(piece);
 };
 
-
+/*
 const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });
-const playerId = 1;
 
 const isPieceBetweenInColumn = (colIndex: number, firstIndex: number, secondIndex: number): boolean => {
     const pos = [firstIndex, secondIndex].sort((a, b) => a - b);
@@ -81,10 +81,6 @@ const isPieceInDiagonal = (colA: number, rowA: number, colB: number, rowB: numbe
 };
 
 const isKingCheck = (colIndex: number, rowIndex: number): boolean => {
-    /* 1 autour
-    diagonales
-    lignes
-    */
     return false;
 };
 
@@ -93,16 +89,6 @@ const isValidMove = (targetColIndex: number, targetRowIndex: number): boolean =>
     if(pieceName === 'rook') {
         return targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, selectedPiece.rowIndex!, targetRowIndex) || targetRowIndex === selectedPiece.rowIndex && !isPieceBetweenInRow(targetRowIndex, selectedPiece.colIndex!, targetColIndex);
     } else if(pieceName === 'knight') {
-        /*
-        haut gauche
-        haut droite
-        bas gauche
-        bas droite
-        gauche haut
-        gauche bas
-        droite haut
-        droite bas
-        */
         return targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex! - 2 || targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex! - 2 || targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex! + 2 || targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex! + 2 ||
         targetColIndex === selectedPiece.colIndex! - 2 && targetRowIndex === selectedPiece.rowIndex! - 1 ||
         targetColIndex === selectedPiece.colIndex! - 2 && targetRowIndex === selectedPiece.rowIndex! + 1 ||
@@ -113,26 +99,8 @@ const isValidMove = (targetColIndex: number, targetRowIndex: number): boolean =>
     } else if(pieceName === 'queen') {
         return targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, selectedPiece.rowIndex!, targetRowIndex) || targetRowIndex === selectedPiece.rowIndex && !isPieceBetweenInRow(targetRowIndex, selectedPiece.colIndex!, targetColIndex) || !isPieceInDiagonal(selectedPiece.colIndex!, selectedPiece.rowIndex!, targetColIndex, targetRowIndex);
     } else if(pieceName === 'king') {
-        /*
-        droite
-        gauche
-        bas
-        haut
-        haut droite
-        haut gauche
-        bas droite
-        bas gauche
-        */
         return (targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex || targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex || targetRowIndex === selectedPiece.rowIndex! + 1 && targetColIndex === selectedPiece.colIndex || targetRowIndex === selectedPiece.rowIndex! - 1 && targetColIndex === selectedPiece.colIndex || targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex! - 1 || targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex! - 1 || targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex! + 1 || targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex! + 1) && !isKingCheck(targetColIndex, targetRowIndex);
     } else if(pieceName === 'pawn') {
-        // TODO : pour les 2 cases, verif si pas de piece 1 case au dessus
-
-        /*
-        attaque haut droite
-        attaque haut gauche
-        2 cases
-        1 case
-        */
         return targetColIndex === selectedPiece.colIndex! + 1 && targetRowIndex === selectedPiece.rowIndex! - 1 && ![undefined, -1].includes(boardPieces.value[selectedPiece.colIndex! + 1]![selectedPiece.rowIndex! - 1]!.playerId!) ||
         targetColIndex === selectedPiece.colIndex! - 1 && targetRowIndex === selectedPiece.rowIndex! - 1 && ![undefined, -1].includes(boardPieces.value[selectedPiece.colIndex! - 1]![selectedPiece.rowIndex! - 1]!.playerId!) ||
         targetColIndex === selectedPiece.colIndex && targetRowIndex === selectedPiece.rowIndex! - 2 && selectedPiece.rowIndex === 6 ||
@@ -140,6 +108,7 @@ const isValidMove = (targetColIndex: number, targetRowIndex: number): boolean =>
     }
     return false;
 };
+*/
 
 const getImageUrl = (path: string): string => {
     return new URL(`/src/assets/images/pieces/${path}.png`, import.meta.url).href;

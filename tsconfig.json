@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowJs": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "alwaysStrict": true,
@@ -15,7 +16,6 @@
         "noUncheckedIndexedAccess": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
-        "types": ["vite/client"],
         "paths": {
             "@/*": ["./src/*"]
         },
@@ -27,16 +27,18 @@
         "strictNullChecks": true,
         "strictPropertyInitialization": false,
         "target": "ESNext",
+        "types": ["vite/client"],
         "useUnknownInCatchVariables": true
     },
-    "exclude": [
-        "node_modules",
-        "dist"
-    ],
     "include": [
         "./**/*.ts",
-        "./**/*.js",
         "./**/*.vue",
-        "./.eslintrc.js"
+        "./.eslintrc"
+    ],
+    "exclude": [
+        ".output",
+        ".data",
+        "dist",
+        "node_modules"
     ]
 }
