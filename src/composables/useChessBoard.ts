@@ -1,9 +1,10 @@
 import type { BoardPieceInterface } from '@/interfaces/board/BoardPieceInterface';
-import type { BoardSquareInterface } from '@/interfaces/board/BoardSquareInterface';
 import type { Ref } from 'vue';
 import { reactive } from 'vue';
 import { onMounted, onUnmounted, computed, ref } from 'vue';
 import { useMoveValidation } from '@/composables/useMoveValidation';
+import { storeToRefs } from 'pinia';
+import { useChessBoardStore } from '@/stores/chessBoardStore';
 
 export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) => {
     const pieceMovesCount = ref(1);
@@ -13,51 +14,8 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     const chessBoardSize = computed(() => chessBoardElement.value!.clientWidth);
     const draggingPiece = ref(false);
 
-    const boardSquares = ref<BoardSquareInterface[][]>([
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
-        [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }]
-    ]);
-
-    const boardPieces = ref<BoardPieceInterface[]>([
-        { colIndex: 0, name: 'b-rook', playerId: 0, rowIndex: 0 },
-        { colIndex: 1, name: 'b-knight', playerId: 0, rowIndex: 0 },
-        { colIndex: 2, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-        { colIndex: 3, name: 'b-queen', playerId: 0, rowIndex: 0 },
-        { colIndex: 4, name: 'b-king', playerId: 0, rowIndex: 0 },
-        { colIndex: 5, name: 'b-bishop', playerId: 0, rowIndex: 0 },
-        { colIndex: 6, name: 'b-knight', playerId: 0, rowIndex: 0 },
-        { colIndex: 7, name: 'b-rook', playerId: 0, rowIndex: 0 },
-        { colIndex: 0, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 1, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 2, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 3, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 4, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 5, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 6, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 7, name: 'b-pawn', playerId: 0, rowIndex: 1 },
-        { colIndex: 0, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 1, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 2, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 3, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 4, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 5, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 6, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 7, name: 'w-pawn', playerId: 1, rowIndex: 6 },
-        { colIndex: 0, name: 'w-rook', playerId: 1, rowIndex: 7 },
-        { colIndex: 1, name: 'w-knight', playerId: 1, rowIndex: 7 },
-        { colIndex: 2, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-        { colIndex: 3, name: 'w-queen', playerId: 1, rowIndex: 7 },
-        { colIndex: 4, name: 'w-king', playerId: 1, rowIndex: 7 },
-        { colIndex: 5, name: 'w-bishop', playerId: 1, rowIndex: 7 },
-        { colIndex: 6, name: 'w-knight', playerId: 1, rowIndex: 7 },
-        { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
-    ]);
+    const chessBoardStore = useChessBoardStore();
+    const { boardPieces, boardSquares } = storeToRefs(chessBoardStore);
 
     const getCellFromMousePosition = (mouseX: number, mouseY: number): { colIndex: number; rowIndex: number } => {
         let colIndex = Math.floor((mouseX - chessBoardElement.value!.offsetLeft + window.scrollX) / cellSize.value);
@@ -198,8 +156,6 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     return {
-        boardSquares,
-        boardPieces,
         movePiece,
         pieceDragStyle,
         dropPiece,
