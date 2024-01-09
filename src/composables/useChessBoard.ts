@@ -200,7 +200,6 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         movePiece,
         pieceDragStyle,
         dropPiece,
-        getBoardPieceIndex,
         selectPiece,
         clickSquare
     };
