@@ -9,10 +9,11 @@ import { useChessBoardStore } from '@/stores/chessBoardStore';
 export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) => {
     const pieceMovesCount = ref(1);
     const cellSize = computed(() => document.querySelector('.cell')!.clientWidth);
-    const currentPlayerId = ref(1);
     const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1, playerId: -1 });
     const chessBoardSize = computed(() => chessBoardElement.value!.clientWidth);
     const draggingPiece = ref(false);
+
+    const moveValidation = useMoveValidation();
 
     const chessBoardStore = useChessBoardStore();
     const { boardPieces, boardSquares } = storeToRefs(chessBoardStore);
@@ -34,7 +35,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     const isCurrentPlayer = (playerId: number): boolean => {
-        return playerId === currentPlayerId.value;
+        return chessBoardStore.isCurrentPlayer(playerId);
     };
 
     const unselectPiece = () => {
@@ -47,12 +48,12 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         Object.assign(selectedPiece, piece);
     };
 
-    const getBoardPieceIndex = (colIndex: number, rowIndex: number): number => {
-        return boardPieces.value.findIndex((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+    const getBoardPieceIndex = (colIndex: number, rowIndex: number) => {
+        return chessBoardStore.getBoardPieceIndex(colIndex, rowIndex);
     };
 
     const placeSelectedPiece = (colIndex: number, rowIndex: number) => {
-        if (useMoveValidation().isValidMove(colIndex, rowIndex, selectedPiece)) {
+        if (moveValidation.isValidMove(colIndex, rowIndex, selectedPiece)) {
             const selectedPieceIndex = getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
             boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
             boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;

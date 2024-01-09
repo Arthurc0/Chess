@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 
 export const useChessBoardStore = defineStore('chessBoard', {
     state: () => ({
+        currentPlayerId: 1,
         boardSquares: [
             [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
             [{ name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }, { name: '' }],
@@ -49,6 +50,16 @@ export const useChessBoardStore = defineStore('chessBoard', {
             { colIndex: 7, name: 'w-rook', playerId: 1, rowIndex: 7 }
         ] as BoardPieceInterface[]
     }),
-    actions: {},
+    actions: {
+        isCurrentPlayer(playerId: number) {
+            return playerId === this.currentPlayerId;
+        },
+        getBoardPieceIndex(colIndex: number, rowIndex: number) {
+            return this.boardPieces.findIndex((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+        },
+        getBoardPiece(colIndex: number, rowIndex: number): BoardPieceInterface | undefined {
+            return this.boardPieces.find((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+        }
+    },
     getters: {}
 });
