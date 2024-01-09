@@ -9,14 +9,16 @@
 
 <script setup lang="ts">
 import { useChessBoard } from '@/composables/useChessBoard';
+import { useChessBoardStore } from '@/stores/chessBoardStore';
 import type { BoardPieceInterface } from '@/interfaces/board/BoardPieceInterface';
-import type { BoardSquareInterface } from '@/interfaces/board/BoardSquareInterface';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 
 const chessBoardElement = ref<HTMLElement>();
 const chessBoard = useChessBoard(chessBoardElement);
-const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
-const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
+
+const chessBoardStore = useChessBoardStore();
+const { boardPieces, boardSquares } = storeToRefs(chessBoardStore);
 
 const isCurrentPlayer = (playerId: number): boolean => {
     return chessBoard.isCurrentPlayer(playerId);
