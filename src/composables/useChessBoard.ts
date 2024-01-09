@@ -47,8 +47,9 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         if (selectedPiece.name) boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.selected = false;
         Object.assign(selectedPiece, { colIndex: -1, name: '', rowIndex: -1 });
     };
+
     const setSelectedPiece = (piece: BoardPieceInterface) => {
-        boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
+        if (isCurrentPlayer(piece.playerId)) boardSquares.value[piece.colIndex]![piece.rowIndex]!.selected = true;
         Object.assign(selectedPiece, piece);
     };
 
@@ -100,6 +101,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
+        if (!isCurrentPlayer(selectedPiece.playerId)) return;
         draggingPiece.value = false;
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -159,8 +161,8 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             e.dataTransfer!.setDragImage(e.target as HTMLElement, -9999, -9999);
             e.dataTransfer!.effectAllowed = 'move';
             unselectPiece();
-            if (!isCurrentPlayer(piece.playerId)) return;
             setSelectedPiece(piece);
+            if (!isCurrentPlayer(piece.playerId)) return;
             document.documentElement.style.setProperty('--transition', 'none');
             (e.target as HTMLElement).style.zIndex = `${pieceMovesCount.value++}`;
         },
@@ -186,7 +188,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
             }
         },
         clickSquare(colIndex: number, rowIndex: number): void {
-            if (selectedPiece.name) {
+            if (selectedPiece.name && isCurrentPlayer(selectedPiece.playerId)) {
                 document.documentElement.style.setProperty('--transition', 'transform 0.15s ease-in-out');
                 placeSelectedPiece(colIndex, rowIndex);
                 unselectPiece();
