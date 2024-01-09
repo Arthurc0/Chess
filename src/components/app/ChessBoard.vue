@@ -1,6 +1,6 @@
 <template>
     <div class="chess-board" ref="chessBoardElement" @drop="dropPiece" @dragover.prevent>
-        <img class="piece" :class="piece.playerId === playerId ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart($event, piece)" v-for="piece in boardPieces" :style="[{ transform: `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }]" :src="getImageUrl(piece.name)" />
+        <img class="piece" :class="isCurrentPlayer(piece.playerId) ? 'cursor-grab' : 'cursor-default'" @click="selectPiece(piece)" @drag="pieceDragging($event, piece)" @dragstart="pieceDragStart($event, piece)" v-for="piece in boardPieces" :style="[{ transform: `translate(${piece.colIndex * 100}%, ${piece.rowIndex * 100}%)` }]" :src="getImageUrl(piece.name)" />
         <div v-for="(_1, colIndex) in boardSquares" :key="colIndex" class="column">
             <div v-for="(_2, rowIndex) in boardSquares" :key="`${colIndex}-${rowIndex}`" class="cell" :class="[(colIndex + rowIndex) % 2 === 0 ? 'light' : 'dark', boardSquares[colIndex]![rowIndex]!.selected ? 'selected' : '']" @click="clickSquare(colIndex, rowIndex)"></div>
         </div>
@@ -17,6 +17,10 @@ const chessBoardElement = ref<HTMLElement>();
 const chessBoard = useChessBoard(chessBoardElement);
 const boardSquares = computed<BoardSquareInterface[][]>(() => chessBoard.boardSquares.value);
 const boardPieces = computed<BoardPieceInterface[]>(() => chessBoard.boardPieces.value);
+
+const isCurrentPlayer = (playerId: number): boolean => {
+    return chessBoard.isCurrentPlayer(playerId);
+};
 
 const clickSquare = (colIndex: number, rowIndex: number): void => {
     chessBoard.clickSquare(colIndex, rowIndex);
@@ -37,8 +41,6 @@ const dropPiece = (e: DragEvent): void => {
 const selectPiece = (piece: BoardPieceInterface): void => {
     chessBoard.selectPiece(piece);
 };
-
-const playerId = 1;
 
 /*
 const selectedPiece = reactive<BoardPieceInterface>({ colIndex: -1, name: '', rowIndex: -1 });

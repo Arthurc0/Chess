@@ -201,6 +201,7 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
         pieceDragStyle,
         dropPiece,
         selectPiece,
-        clickSquare
+        clickSquare,
+        isCurrentPlayer
     };
 };
