@@ -3,6 +3,7 @@ import type { BoardSquareInterface } from '@/interfaces/board/BoardSquareInterfa
 import type { Ref } from 'vue';
 import { reactive } from 'vue';
 import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { useMoveValidation } from '@/composables/useMoveValidation';
 
 export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) => {
     const pieceMovesCount = ref(1);
@@ -93,11 +94,13 @@ export const useChessBoard = (chessBoardElement: Ref<HTMLElement | undefined>) =
     };
 
     const placeSelectedPiece = (colIndex: number, rowIndex: number) => {
-        const selectedPieceIndex = getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
-        boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
-        boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;
-        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
-        boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
+        if (useMoveValidation().isValidMove(colIndex, rowIndex, selectedPiece)) {
+            const selectedPieceIndex = getBoardPieceIndex(selectedPiece.colIndex, selectedPiece.rowIndex);
+            boardPieces.value[selectedPieceIndex]!.colIndex = colIndex;
+            boardPieces.value[selectedPieceIndex]!.rowIndex = rowIndex;
+            boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.playerId = undefined;
+            boardSquares.value[selectedPiece.colIndex]![selectedPiece.rowIndex]!.name = '';
+        }
     };
 
     const dropPiece = (e: DragEvent | MouseEvent, type: 'drag' | 'mouse'): void => {
