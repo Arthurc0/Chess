@@ -21,15 +21,24 @@ export const useMoveValidation = () => {
         return false;
     };
 
-    const isPieceBetweenInRow = (rowIndex: number, firstIndex: number, secondIndex: number): boolean => {
-        const pos = [firstIndex, secondIndex].sort((a, b) => a - b);
-        return boardSquares.value.findIndex((val, index) => val[rowIndex]?.name.length && index > pos[0]! && index < pos[1]!) !== -1;
+    const isPieceBetweenInRow = (rowIndex: number, targetColIndex: number, currentColIndex: number): boolean => {
+        const toLeft = targetColIndex < currentColIndex;
+        let col = toLeft ? currentColIndex - 1 : currentColIndex + 1;
+        while (toLeft ? col >= targetColIndex : col <= targetColIndex) {
+            const foundPiece = chessBoardStore.getBoardPiece(col, rowIndex);
+            if (foundPiece?.name) {
+                if (chessBoardStore.isCurrentPlayer(foundPiece.playerId)) return true;
+                if (col === targetColIndex) return false;
+                return true;
+            }
+            toLeft ? col-- : col++;
+        }
+        return false;
     };
 
     const canPawnMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
         const isOpponent = chessBoardStore.isOpponentPiece(targetColIndex, targetRowIndex);
-        const noPieceInFront = !chessBoardStore.getBoardPiece(targetColIndex, targetRowIndex)?.name;
-        const toUp = (selectedPiece.rowIndex === 6 && targetRowIndex === selectedPiece.rowIndex - 2 || targetRowIndex === selectedPiece.rowIndex - 1) && targetColIndex === selectedPiece.colIndex && noPieceInFront;
+        const toUp = (selectedPiece.rowIndex === 6 && targetRowIndex === selectedPiece.rowIndex - 2 || targetRowIndex === selectedPiece.rowIndex - 1) && targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, targetRowIndex, selectedPiece.rowIndex);
         const toUpRight = targetRowIndex === selectedPiece.rowIndex - 1 && targetColIndex === selectedPiece.colIndex + 1 && isOpponent;
         const toUpLeft = targetRowIndex === selectedPiece.rowIndex - 1 && targetColIndex === selectedPiece.colIndex - 1 && isOpponent;
 
