@@ -59,6 +59,9 @@ export const useChessBoardStore = defineStore('chessBoard', {
         },
         getBoardPiece(colIndex: number, rowIndex: number): BoardPieceInterface | undefined {
             return this.boardPieces.find((p) => p.colIndex === colIndex && p.rowIndex === rowIndex);
+        },
+        isOpponentPiece(colIndex: number, rowIndex: number) {
+            return !this.isCurrentPlayer(this.getBoardPiece(colIndex, rowIndex)?.playerId ?? this.currentPlayerId);
         }
     },
     getters: {}
