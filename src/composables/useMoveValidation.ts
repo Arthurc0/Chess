@@ -45,6 +45,22 @@ export const useMoveValidation = () => {
         return toUp || toUpRight || toUpLeft;
     };
 
+    const canKingMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
+        const noCurrentPlayerPieceAround = !chessBoardStore.getBoardPiece(targetColIndex, targetRowIndex) || chessBoardStore.isOpponentPiece(targetColIndex, targetRowIndex);
+        const sameColumn = targetColIndex === selectedPiece.colIndex;
+        const sameRow = targetRowIndex === selectedPiece.rowIndex;
+        const toUp = targetRowIndex === selectedPiece.rowIndex - 1 && noCurrentPlayerPieceAround;
+        const toRight = targetColIndex === selectedPiece.colIndex + 1 && noCurrentPlayerPieceAround;
+        const toDown = targetRowIndex === selectedPiece.rowIndex + 1 && noCurrentPlayerPieceAround;
+        const toLeft = targetColIndex === selectedPiece.colIndex - 1 && noCurrentPlayerPieceAround;
+        const toUpLeft = toUp && toLeft;
+        const toUpRight = toUp && toRight;
+        const toDownRight = toDown && toRight;
+        const toDownLeft = toDown && toLeft;
+
+        return toUp && sameColumn || toRight && sameRow || toDown && sameColumn || toLeft && sameRow || toUpLeft || toUpRight || toDownRight || toDownLeft;
+    };
+
     const canRookMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
         const vertical = targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, targetRowIndex, selectedPiece.rowIndex);
         const horizontal = targetRowIndex === selectedPiece.rowIndex && !isPieceBetweenInRow(targetRowIndex, targetColIndex, selectedPiece.colIndex);
@@ -65,7 +81,7 @@ export const useMoveValidation = () => {
         } else if (pieceName === 'queen') {
             return true;
         } else if (pieceName === 'king') {
-            return true;
+            return canKingMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'pawn') {
             return canPawnMove(targetColIndex, targetRowIndex, selectedPiece);
         }
