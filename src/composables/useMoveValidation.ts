@@ -36,9 +36,33 @@ export const useMoveValidation = () => {
         return false;
     };
 
+    const isPieceBetweenInDiagonal = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface): boolean => {
+        if (Math.abs(selectedPiece.colIndex - targetColIndex) !== Math.abs(selectedPiece.rowIndex - targetRowIndex)) return true;
+        const toUp = targetRowIndex < selectedPiece.rowIndex;
+        const toDown = targetRowIndex > selectedPiece.rowIndex;
+        const toRight = targetColIndex > selectedPiece.colIndex;
+        const toLeft = targetColIndex < selectedPiece.colIndex;
+
+        let col = toRight ? selectedPiece.colIndex + 1 : selectedPiece.colIndex - 1;
+        let row = toDown ? selectedPiece.rowIndex + 1 : selectedPiece.rowIndex - 1;
+        while ((toRight ? col <= targetColIndex : col >= targetColIndex) && (toUp ? row >= targetRowIndex : row <= targetRowIndex)) {
+            const foundPiece = chessBoardStore.getBoardPiece(col, row);
+            if (foundPiece?.name) {
+                if (chessBoardStore.isCurrentPlayer(foundPiece.playerId)) return true;
+                if (col === targetColIndex && row === targetRowIndex) return false;
+                return true;
+            }
+            if (toUp) row--;
+            else if (toDown) row++;
+            if (toRight) col++;
+            else if (toLeft) col--;
+        }
+        return false;
+    };
+
     const canPawnMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
         const isOpponent = chessBoardStore.isOpponentPiece(targetColIndex, targetRowIndex);
-        const toUp = (selectedPiece.rowIndex === 6 && targetRowIndex === selectedPiece.rowIndex - 2 || targetRowIndex === selectedPiece.rowIndex - 1) && targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, targetRowIndex, selectedPiece.rowIndex);
+        const toUp = (selectedPiece.rowIndex === 6 && targetRowIndex === selectedPiece.rowIndex - 2 || targetRowIndex === selectedPiece.rowIndex - 1) && targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, targetRowIndex, selectedPiece.rowIndex) && !isOpponent;
         const toUpRight = targetRowIndex === selectedPiece.rowIndex - 1 && targetColIndex === selectedPiece.colIndex + 1 && isOpponent;
         const toUpLeft = targetRowIndex === selectedPiece.rowIndex - 1 && targetColIndex === selectedPiece.colIndex - 1 && isOpponent;
 
@@ -61,6 +85,11 @@ export const useMoveValidation = () => {
         return toUp && sameColumn || toRight && sameRow || toDown && sameColumn || toLeft && sameRow || toUpLeft || toUpRight || toDownRight || toDownLeft;
     };
 
+    const canBishopMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
+        const diagonal = !isPieceBetweenInDiagonal(targetColIndex, targetRowIndex, selectedPiece);
+        return diagonal;
+    };
+
     const canRookMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
         const vertical = targetColIndex === selectedPiece.colIndex && !isPieceBetweenInColumn(targetColIndex, targetRowIndex, selectedPiece.rowIndex);
         const horizontal = targetRowIndex === selectedPiece.rowIndex && !isPieceBetweenInRow(targetRowIndex, targetColIndex, selectedPiece.colIndex);
@@ -77,7 +106,7 @@ export const useMoveValidation = () => {
         } else if (pieceName === 'knight') {
             return true;
         } else if (pieceName === 'bishop') {
-            return true;
+            return canBishopMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'queen') {
             return true;
         } else if (pieceName === 'king') {
