@@ -97,6 +97,23 @@ export const useMoveValidation = () => {
         return vertical || horizontal;
     };
 
+    const canKnightMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
+        const noCurrentPlayerPiece = !chessBoardStore.getBoardPiece(targetColIndex, targetRowIndex) || chessBoardStore.isOpponentPiece(targetColIndex, targetRowIndex);
+        const toRightLong = targetColIndex === selectedPiece.colIndex + 2;
+        const toRightShort = targetColIndex === selectedPiece.colIndex + 1;
+        const toLeftLong = targetColIndex === selectedPiece.colIndex - 2;
+        const toLeftShort = targetColIndex === selectedPiece.colIndex - 1;
+        const toUpLong = targetRowIndex === selectedPiece.rowIndex - 2;
+        const toUpShort = targetRowIndex === selectedPiece.rowIndex - 1;
+        const toDownLong = targetRowIndex === selectedPiece.rowIndex + 2;
+        const toDownShort = targetRowIndex === selectedPiece.rowIndex + 1;
+        const toUpLeft = toUpLong && toLeftShort || toUpShort && toLeftLong;
+        const toUpRight = toUpLong && toRightShort || toUpShort && toRightLong;
+        const toDownRight = toDownLong && toRightShort || toDownShort && toRightLong;
+        const toDownLeft = toDownLong && toLeftShort || toDownShort && toLeftLong;
+        return noCurrentPlayerPiece && (toUpLeft || toUpRight || toDownRight || toDownLeft);
+    };
+
     const isValidMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface): boolean => {
         if (targetColIndex === selectedPiece.colIndex && targetRowIndex === selectedPiece.rowIndex) return false;
         const pieceName = selectedPiece.name.split('-')?.[1] ?? '';
@@ -104,7 +121,7 @@ export const useMoveValidation = () => {
         if (pieceName === 'rook') {
             return canRookMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'knight') {
-            return true;
+            return canKnightMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'bishop') {
             return canBishopMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'queen') {
