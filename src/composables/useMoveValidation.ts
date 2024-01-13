@@ -6,11 +6,11 @@ export const useMoveValidation = () => {
     const chessBoardStore = useChessBoardStore();
     const { currentPlayerId, boardSquares } = storeToRefs(chessBoardStore);
 
-    const isPieceBetweenInColumn = (colIndex: number, targetRowIndex: number, currentRowIndex: number): boolean => {
+    const isPieceBetweenInColumn = (targetColIndex: number, targetRowIndex: number, currentRowIndex: number): boolean => {
         const toUp = targetRowIndex < currentRowIndex;
         let row = toUp ? currentRowIndex - 1 : currentRowIndex + 1;
         while (toUp ? row >= targetRowIndex : row <= targetRowIndex) {
-            const foundPiece = chessBoardStore.getBoardPiece(colIndex, row);
+            const foundPiece = chessBoardStore.getBoardPiece(targetColIndex, row);
             if (foundPiece?.name) {
                 if (chessBoardStore.isCurrentPlayer(foundPiece.playerId)) return true;
                 if (row === targetRowIndex) return false;
@@ -21,11 +21,11 @@ export const useMoveValidation = () => {
         return false;
     };
 
-    const isPieceBetweenInRow = (rowIndex: number, targetColIndex: number, currentColIndex: number): boolean => {
+    const isPieceBetweenInRow = (targetRowIndex: number, targetColIndex: number, currentColIndex: number): boolean => {
         const toLeft = targetColIndex < currentColIndex;
         let col = toLeft ? currentColIndex - 1 : currentColIndex + 1;
         while (toLeft ? col >= targetColIndex : col <= targetColIndex) {
-            const foundPiece = chessBoardStore.getBoardPiece(col, rowIndex);
+            const foundPiece = chessBoardStore.getBoardPiece(col, targetRowIndex);
             if (foundPiece?.name) {
                 if (chessBoardStore.isCurrentPlayer(foundPiece.playerId)) return true;
                 if (col === targetColIndex) return false;
