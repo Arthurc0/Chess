@@ -114,6 +114,10 @@ export const useMoveValidation = () => {
         return noCurrentPlayerPiece && (toUpLeft || toUpRight || toDownRight || toDownLeft);
     };
 
+    const canQueenMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface) => {
+        return canRookMove(targetColIndex, targetRowIndex, selectedPiece) || canBishopMove(targetColIndex, targetRowIndex, selectedPiece);
+    };
+
     const isValidMove = (targetColIndex: number, targetRowIndex: number, selectedPiece: BoardPieceInterface): boolean => {
         if (targetColIndex === selectedPiece.colIndex && targetRowIndex === selectedPiece.rowIndex) return false;
         const pieceName = selectedPiece.name.split('-')?.[1] ?? '';
@@ -125,7 +129,7 @@ export const useMoveValidation = () => {
         } else if (pieceName === 'bishop') {
             return canBishopMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'queen') {
-            return true;
+            return canQueenMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'king') {
             return canKingMove(targetColIndex, targetRowIndex, selectedPiece);
         } else if (pieceName === 'pawn') {
